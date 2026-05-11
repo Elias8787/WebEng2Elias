@@ -2,6 +2,7 @@ package macros.macros.controller;
 
 import macros.macros.model.Meal;
 import macros.macros.service.MealService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,12 +32,12 @@ public class MealController {
     }
 
     @PostMapping
-    public Meal createMeal(@RequestBody Meal meal) {
+    public Meal createMeal(@Valid @RequestBody Meal meal) {
         return mealService.createMeal(meal);
     }
 
     @PutMapping("/{id}")
-    public Meal updateMeal(@PathVariable Long id, @RequestBody Meal meal) {
+    public Meal updateMeal(@PathVariable Long id, @Valid @RequestBody Meal meal) {
         return mealService.updateMeal(id, meal);
     }
 
