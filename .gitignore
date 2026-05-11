@@ -34,3 +34,6 @@ build/
 
 ### Amazon Q ###
 .amazonq/
+
+### H2 Database ###
+data/
