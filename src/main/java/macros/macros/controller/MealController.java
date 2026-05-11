@@ -1,36 +1,48 @@
 package macros.macros.controller;
 
+import macros.macros.model.Meal;
+import macros.macros.service.MealService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/meals")
+@RequiredArgsConstructor
 public class MealController {
 
+    private final MealService mealService;
+
     @GetMapping
-    public List<String> getAllMeals() {
-        return new ArrayList<>();
+    public List<Meal> getAllMeals() {
+        return mealService.getAllMeals();
     }
 
     @GetMapping("/{id}")
-    public String getMealById(@PathVariable Long id) {
-        return "Meal " + id;
+    public Meal getMealById(@PathVariable Long id) {
+        return mealService.getMealById(id);
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<Meal> getMealsByUserId(@PathVariable Long userId) {
+        return mealService.getMealsByUserId(userId);
     }
 
     @PostMapping
-    public String createMeal(@RequestBody String meal) {
-        return "Meal created";
+    public Meal createMeal(@RequestBody Meal meal) {
+        return mealService.createMeal(meal);
     }
 
     @PutMapping("/{id}")
-    public String updateMeal(@PathVariable Long id, @RequestBody String meal) {
-        return "Meal " + id + " updated";
+    public Meal updateMeal(@PathVariable Long id, @RequestBody Meal meal) {
+        return mealService.updateMeal(id, meal);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteMeal(@PathVariable Long id) {
-        return "Meal " + id + " deleted";
+    public ResponseEntity<Void> deleteMeal(@PathVariable Long id) {
+        mealService.deleteMeal(id);
+        return ResponseEntity.noContent().build();
     }
 }
