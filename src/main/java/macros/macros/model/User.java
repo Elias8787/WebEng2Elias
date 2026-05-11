@@ -24,9 +24,12 @@ public class User {
     private int age;
     private boolean male;
     private double palValue;
-    private String goal; // LOSE, MAINTAIN, GAIN
-    private String city;
+    private String goal; // lose, maintain, gain
+    private String city; // for weather api
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Meal> meals;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<ActivitySuggestion> activitySuggestions;
 }
