@@ -1,7 +1,9 @@
 package macros.macros.service;
 
+import macros.macros.dto.MealDTO;
 import macros.macros.model.Meal;
 import macros.macros.repository.MealRepository;
+import macros.macros.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,22 +23,29 @@ class MealServiceTest {
     @Mock
     private MealRepository mealRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     private MealService mealService;
 
     @Test
-    void createMeal_savesAndReturnsMeal() {
+    void createMeal_savesAndReturnsMealDTO() {
         Meal meal = new Meal();
         meal.setName("Pasta");
         meal.setCalories(600);
 
-        when(mealRepository.save(meal)).thenReturn(meal);
+        when(mealRepository.save(any(Meal.class))).thenReturn(meal);
 
-        Meal result = mealService.createMeal(meal);
+        MealDTO dto = new MealDTO();
+        dto.setName("Pasta");
+        dto.setCalories(600);
+        dto.setDate(LocalDate.now());
+
+        MealDTO result = mealService.createMeal(dto);
 
         assertEquals("Pasta", result.getName());
         assertEquals(600, result.getCalories());
-        verify(mealRepository).save(meal);
     }
 
     @Test
@@ -56,7 +65,7 @@ class MealServiceTest {
 
         when(mealRepository.findByUserIdAndDate(1L, today)).thenReturn(List.of(meal1, meal2));
 
-        List<Meal> result = mealService.getMealsByUserIdAndDate(1L, today);
+        List<MealDTO> result = mealService.getMealsByUserIdAndDate(1L, today);
 
         assertEquals(2, result.size());
     }
