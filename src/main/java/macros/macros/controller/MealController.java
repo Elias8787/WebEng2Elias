@@ -1,6 +1,6 @@
 package macros.macros.controller;
 
-import macros.macros.model.Meal;
+import macros.macros.dto.MealDTO;
 import macros.macros.service.MealService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,28 +17,28 @@ public class MealController {
     private final MealService mealService;
 
     @GetMapping
-    public List<Meal> getAllMeals() {
+    public List<MealDTO> getAllMeals() {
         return mealService.getAllMeals();
     }
 
     @GetMapping("/{id}")
-    public Meal getMealById(@PathVariable Long id) {
+    public MealDTO getMealById(@PathVariable Long id) {
         return mealService.getMealById(id);
     }
 
     @GetMapping("/user/{userId}")
-    public List<Meal> getMealsByUserId(@PathVariable Long userId) {
+    public List<MealDTO> getMealsByUserId(@PathVariable Long userId) {
         return mealService.getMealsByUserId(userId);
     }
 
     @PostMapping
-    public Meal createMeal(@Valid @RequestBody Meal meal) {
-        return mealService.createMeal(meal);
+    public MealDTO createMeal(@Valid @RequestBody MealDTO mealDTO) {
+        return mealService.createMeal(mealDTO);
     }
 
     @PutMapping("/{id}")
-    public Meal updateMeal(@PathVariable Long id, @Valid @RequestBody Meal meal) {
-        return mealService.updateMeal(id, meal);
+    public MealDTO updateMeal(@PathVariable Long id, @Valid @RequestBody MealDTO mealDTO) {
+        return mealService.updateMeal(id, mealDTO);
     }
 
     @DeleteMapping("/{id}")
