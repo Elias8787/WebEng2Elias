@@ -4,6 +4,9 @@ GET http://localhost:8080/api/meals
 ### Get meal by id
 GET http://localhost:8080/api/meals/1
 
+### Get meal by id (404)
+GET http://localhost:8080/api/meals/9999
+
 ### Create a meal
 POST http://localhost:8080/api/meals
 Content-Type: application/json
@@ -30,5 +33,21 @@ Content-Type: application/json
   "date": "2025-01-15"
 }
 
+### Update non-existent meal (404)
+PUT http://localhost:8080/api/meals/9999
+Content-Type: application/json
+
+{
+  "name": "Non-existent Meal",
+  "calories": 500,
+  "protein": 25.0,
+  "fat": 15.0,
+  "carbs": 60.0,
+  "date": "2025-01-15"
+}
+
 ### Delete a meal
+DELETE http://localhost:8080/api/meals/1
+
+### Delete already deleted meal (404)
 DELETE http://localhost:8080/api/meals/1
