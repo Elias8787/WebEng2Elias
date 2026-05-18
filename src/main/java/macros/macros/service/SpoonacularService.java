@@ -20,7 +20,6 @@ public class SpoonacularService {
 
     private static final String BASE_URL = "https://api.spoonacular.com";
 
-    // Sucht Rezepte über die Spoonacular API
     public List<RecipeDTO> searchRecipes(String query) {
         Map response = webClientBuilder.build()
                 .get()
@@ -33,7 +32,6 @@ public class SpoonacularService {
         return results.stream().map(this::mapFromApi).toList();
     }
 
-    // Wandelt API-Antwort in RecipeDTO um
     private RecipeDTO mapFromApi(Map recipe) {
         RecipeDTO dto = new RecipeDTO();
         dto.setName((String) recipe.get("title"));
@@ -51,6 +49,7 @@ public class SpoonacularService {
                 case "Fat" -> dto.setFat(amount);
                 case "Carbohydrates" -> dto.setCarbs(amount);
             }
+
         }
 
         List<Map> ingredientsList = (List<Map>) nutrition.get("ingredients");
