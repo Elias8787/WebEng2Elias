@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/meals")
@@ -24,7 +25,9 @@ public class MealController {
 
     @GetMapping("/{id}")
     public ResponseEntity<MealDTO> getMealById(@PathVariable Long id) {
-        return ResponseEntity.ok(mealService.getMealById(id));
+        return mealService.findById(id)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/user/{userId}")
@@ -42,12 +45,16 @@ public class MealController {
 
     @PutMapping("/{id}")
     public ResponseEntity<MealDTO> updateMeal(@PathVariable Long id, @Valid @RequestBody MealDTO mealDTO) {
-        return ResponseEntity.ok(mealService.updateMeal(id, mealDTO));
+        return mealService.updateMeal(id, mealDTO)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMeal(@PathVariable Long id) {
-        mealService.deleteMeal(id);
-        return ResponseEntity.noContent().build();
+        if (mealService.deleteMeal(id)) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }
