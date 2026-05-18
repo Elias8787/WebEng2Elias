@@ -22,10 +22,8 @@ public class MealService {
         return mealRepository.findAll().stream().map(this::toDTO).toList();
     }
 
-    public MealDTO getMealById(Long id) {
-        Meal meal = mealRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Meal not found with id: " + id));
-        return toDTO(meal);
+    public Optional<MealDTO> findById(Long id) {
+        return mealRepository.findById(id).map(this::toDTO);
     }
 
     public List<MealDTO> getMealsByUserId(Long userId) {
@@ -41,20 +39,25 @@ public class MealService {
         return toDTO(mealRepository.save(meal));
     }
 
-    public MealDTO updateMeal(Long id, MealDTO mealDTO) {
-        Meal meal = mealRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Meal not found with id: " + id));
-        meal.setName(mealDTO.getName());
-        meal.setCalories(mealDTO.getCalories());
-        meal.setProtein(mealDTO.getProtein());
-        meal.setFat(mealDTO.getFat());
-        meal.setCarbs(mealDTO.getCarbs());
-        meal.setDate(mealDTO.getDate());
-        return toDTO(mealRepository.save(meal));
+    public Optional<MealDTO> updateMeal(Long id, MealDTO mealDTO) {
+        return mealRepository.findById(id)
+                .map(meal -> {
+                    meal.setName(mealDTO.getName());
+                    meal.setCalories(mealDTO.getCalories());
+                    meal.setProtein(mealDTO.getProtein());
+                    meal.setFat(mealDTO.getFat());
+                    meal.setCarbs(mealDTO.getCarbs());
+                    meal.setDate(mealDTO.getDate());
+                    return toDTO(mealRepository.save(meal));
+                });
     }
 
-    public void deleteMeal(Long id) {
-        mealRepository.deleteById(id);
+    public boolean deleteMeal(Long id) {
+        if (mealRepository.existsById(id)) {
+            mealRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     private MealDTO toDTO(Meal meal) {
