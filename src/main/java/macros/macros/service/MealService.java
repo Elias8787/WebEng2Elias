@@ -1,6 +1,8 @@
 package macros.macros.service;
 
-import macros.macros.dto.MealDTO;
+import macros.macros.dto.MealRequest;
+import macros.macros.dto.MealResponse;
+import macros.macros.mapper.MealMapper;
 import macros.macros.model.Meal;
 import macros.macros.model.User;
 import macros.macros.repository.MealRepository;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,37 +21,47 @@ public class MealService {
     private final MealRepository mealRepository;
     private final UserRepository userRepository;
 
-    public List<MealDTO> getAllMeals() {
-        return mealRepository.findAll().stream().map(this::toDTO).toList();
+    public List<MealResponse> getAllMeals() {
+        return mealRepository.findAll().stream().map(MealMapper::toResponse).toList();
     }
 
-    public Optional<MealDTO> findById(Long id) {
-        return mealRepository.findById(id).map(this::toDTO);
+    public Optional<MealResponse> findById(Long id) {
+        return mealRepository.findById(id).map(MealMapper::toResponse);
     }
 
-    public List<MealDTO> getMealsByUserId(Long userId) {
-        return mealRepository.findByUserId(userId).stream().map(this::toDTO).toList();
+    public List<MealResponse> getMealsByUserId(Long userId) {
+        return mealRepository.findByUserId(userId).stream().map(MealMapper::toResponse).toList();
     }
 
-    public List<MealDTO> getMealsByUserIdAndDate(Long userId, LocalDate date) {
-        return mealRepository.findByUserIdAndDate(userId, date).stream().map(this::toDTO).toList();
+    public List<MealResponse> getMealsByUserIdAndDate(Long userId, LocalDate date) {
+        return mealRepository.findByUserIdAndDate(userId, date).stream().map(MealMapper::toResponse).toList();
     }
 
-    public MealDTO createMeal(MealDTO mealDTO) {
-        Meal meal = toEntity(mealDTO);
-        return toDTO(mealRepository.save(meal));
+    public MealResponse createMeal(MealRequest mealRequest) {
+        User user = null;
+        if (mealRequest.userId() != null) {
+            user = userRepository.findById(mealRequest.userId())
+                    .orElseThrow(() -> new RuntimeException("User not found with id: " + mealRequest.userId()));
+        }
+        Meal meal = MealMapper.toEntity(mealRequest, user);
+        return MealMapper.toResponse(mealRepository.save(meal));
     }
 
-    public Optional<MealDTO> updateMeal(Long id, MealDTO mealDTO) {
+    public Optional<MealResponse> updateMeal(Long id, MealRequest mealRequest) {
         return mealRepository.findById(id)
                 .map(meal -> {
-                    meal.setName(mealDTO.getName());
-                    meal.setCalories(mealDTO.getCalories());
-                    meal.setProtein(mealDTO.getProtein());
-                    meal.setFat(mealDTO.getFat());
-                    meal.setCarbs(mealDTO.getCarbs());
-                    meal.setDate(mealDTO.getDate());
-                    return toDTO(mealRepository.save(meal));
+                    meal.setName(mealRequest.name());
+                    meal.setCalories(mealRequest.calories());
+                    meal.setProtein(mealRequest.protein());
+                    meal.setFat(mealRequest.fat());
+                    meal.setCarbs(mealRequest.carbs());
+                    meal.setDate(mealRequest.date());
+                    if (mealRequest.userId() != null) {
+                        User user = userRepository.findById(mealRequest.userId())
+                                .orElseThrow(() -> new RuntimeException("User not found with id: " + mealRequest.userId()));
+                        meal.setUser(user);
+                    }
+                    return MealMapper.toResponse(mealRepository.save(meal));
                 });
     }
 
@@ -60,32 +73,5 @@ public class MealService {
         return false;
     }
 
-    private MealDTO toDTO(Meal meal) {
-        MealDTO dto = new MealDTO();
-        dto.setId(meal.getId());
-        dto.setName(meal.getName());
-        dto.setCalories(meal.getCalories());
-        dto.setProtein(meal.getProtein());
-        dto.setFat(meal.getFat());
-        dto.setCarbs(meal.getCarbs());
-        dto.setDate(meal.getDate());
-        dto.setUserId(meal.getUser() != null ? meal.getUser().getId() : null);
-        return dto;
-    }
 
-    private Meal toEntity(MealDTO dto) {
-        Meal meal = new Meal();
-        meal.setName(dto.getName());
-        meal.setCalories(dto.getCalories());
-        meal.setProtein(dto.getProtein());
-        meal.setFat(dto.getFat());
-        meal.setCarbs(dto.getCarbs());
-        meal.setDate(dto.getDate());
-        if (dto.getUserId() != null) {
-            User user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getUserId()));
-            meal.setUser(user);
-        }
-        return meal;
-    }
 }

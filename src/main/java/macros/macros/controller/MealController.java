@@ -1,6 +1,8 @@
 package macros.macros.controller;
 
-import macros.macros.dto.MealDTO;
+import macros.macros.dto.MealRequest;
+import macros.macros.dto.MealResponse;
+import macros.macros.mapper.MealMapper;
 import macros.macros.service.MealService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,33 +21,33 @@ public class MealController {
     private final MealService mealService;
 
     @GetMapping
-    public List<MealDTO> getAllMeals() {
+    public List<MealResponse> getAllMeals() {
         return mealService.getAllMeals();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MealDTO> getMealById(@PathVariable Long id) {
+    public ResponseEntity<MealResponse> getMealById(@PathVariable Long id) {
         return mealService.findById(id)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/user/{userId}")
-    public List<MealDTO> getMealsByUserId(@PathVariable Long userId) {
+    public List<MealResponse> getMealsByUserId(@PathVariable Long userId) {
         return mealService.getMealsByUserId(userId);
     }
 
     @PostMapping
-    public ResponseEntity<MealDTO> createMeal(@Valid @RequestBody MealDTO mealDTO) {
-        MealDTO created = mealService.createMeal(mealDTO);
+    public ResponseEntity<MealResponse> createMeal(@Valid @RequestBody MealRequest mealRequest) {
+        MealResponse created = mealService.createMeal(mealRequest);
         return ResponseEntity
-            .created(URI.create("/api/meals/" + created.getId()))
+            .created(URI.create("/api/meals/" + created.id()))
             .body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MealDTO> updateMeal(@PathVariable Long id, @Valid @RequestBody MealDTO mealDTO) {
-        return mealService.updateMeal(id, mealDTO)
+    public ResponseEntity<MealResponse> updateMeal(@PathVariable Long id, @Valid @RequestBody MealRequest mealRequest) {
+        return mealService.updateMeal(id, mealRequest)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
