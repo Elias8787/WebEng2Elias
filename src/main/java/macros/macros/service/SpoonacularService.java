@@ -1,6 +1,8 @@
 package macros.macros.service;
 
 import macros.macros.dto.RecipeDTO;
+import macros.macros.model.Recipe;
+import macros.macros.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.util.Map;
 public class SpoonacularService {
 
     private final WebClient.Builder webClientBuilder;
+    private final RecipeRepository recipeRepository;
 
     @Value("${spoonacular.api.key}")
     private String apiKey;
@@ -21,6 +24,13 @@ public class SpoonacularService {
     private static final String BASE_URL = "https://api.spoonacular.com";
 
     public List<RecipeDTO> searchRecipes(String query) {
+        // Erst in DB schauen
+        List<Recipe> cached = recipeRepository.findBySearchQuery(query.toLowerCase());
+        if (!cached.isEmpty()) {
+            return cached.stream().map(this::mapFromEntity).toList();
+        }
+
+        // Wenn nicht -> API anfragen
         Map response = webClientBuilder.build()
                 .get()
                 .uri(BASE_URL + "/recipes/complexSearch?query={query}&addRecipeNutrition=true&number=5&apiKey={apiKey}", query, apiKey)
@@ -29,7 +39,33 @@ public class SpoonacularService {
                 .block();
 
         List<Map> results = (List<Map>) response.get("results");
-        return results.stream().map(this::mapFromApi).toList();
+        List<RecipeDTO> recipes = results.stream().map(this::mapFromApi).toList();
+
+        // In DB speichern
+        recipes.forEach(dto -> {
+            Recipe recipe = new Recipe();
+            recipe.setName(dto.getName());
+            recipe.setCalories(dto.getCalories());
+            recipe.setProtein(dto.getProtein());
+            recipe.setFat(dto.getFat());
+            recipe.setCarbs(dto.getCarbs());
+            recipe.setIngredients(String.join(",", dto.getIngredients()));
+            recipe.setSearchQuery(query.toLowerCase());
+            recipeRepository.save(recipe);
+        });
+
+        return recipes;
+    }
+
+    private RecipeDTO mapFromEntity(Recipe recipe) {
+        RecipeDTO dto = new RecipeDTO();
+        dto.setName(recipe.getName());
+        dto.setCalories(recipe.getCalories());
+        dto.setProtein(recipe.getProtein());
+        dto.setFat(recipe.getFat());
+        dto.setCarbs(recipe.getCarbs());
+        dto.setIngredients(List.of(recipe.getIngredients().split(",")));
+        return dto;
     }
 
     private RecipeDTO mapFromApi(Map recipe) {
