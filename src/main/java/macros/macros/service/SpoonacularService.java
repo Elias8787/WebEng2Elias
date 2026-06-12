@@ -50,6 +50,7 @@ public class SpoonacularService {
             recipe.setFat(dto.getFat());
             recipe.setCarbs(dto.getCarbs());
             recipe.setIngredients(String.join(",", dto.getIngredients()));
+            recipe.setImage(dto.getImage());
             recipe.setSearchQuery(query.toLowerCase());
             recipeRepository.save(recipe);
         });
@@ -64,6 +65,7 @@ public class SpoonacularService {
         dto.setProtein(recipe.getProtein());
         dto.setFat(recipe.getFat());
         dto.setCarbs(recipe.getCarbs());
+        dto.setImage(recipe.getImage());
         dto.setIngredients(List.of(recipe.getIngredients().split(",")));
         return dto;
     }
@@ -71,6 +73,7 @@ public class SpoonacularService {
     private RecipeDTO mapFromApi(Map recipe) {
         RecipeDTO dto = new RecipeDTO();
         dto.setName((String) recipe.get("title"));
+        dto.setImage((String) recipe.get("image"));
 
         Map nutrition = (Map) recipe.get("nutrition");
         List<Map> nutrients = (List<Map>) nutrition.get("nutrients");

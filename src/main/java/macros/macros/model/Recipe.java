@@ -24,5 +24,7 @@ public class Recipe {
     @Column(length = 2000)
     private String ingredients; // komma getrennt gespeichert
 
+    private String image;
+
     private String searchQuery; // welcher Suchbegriff zu diesem Rezept führte
 }
