@@ -212,8 +212,9 @@ docker compose up --build
 
 - Backend: http://localhost:8080
 - Frontend: http://localhost:5173
+- Datenbank: PostgreSQL (Port 5432)
 
-**Hinweis:** Docker verwendet eine eigene H2-Datenbank. Die lokal gespeicherten Daten werden nicht mit Docker geteilt.
+**Hinweis:** Docker verwendet PostgreSQL als Datenbank. Die lokal gespeicherten Daten (H2) werden nicht mit Docker geteilt. Lokal läuft die App mit H2, in Docker mit PostgreSQL.
 
 **Rezept-Cache:** Die Spoonacular API-Ergebnisse werden in der Datenbank gecacht. Wenn die API neue Rezepte für den gleichen Suchbegriff hat, werden diese nicht automatisch aktualisiert. Um den Cache zu leeren, kann die Datenbank-Datei `data/macrosdb.mv.db` gelöscht werden. Beim nächsten Start wird sie neu erstellt.
 
